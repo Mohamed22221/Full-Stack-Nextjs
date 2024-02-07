@@ -3,7 +3,7 @@ import { buildFeedbackPath, extractFeedback } from "./api/feedback";
 import { useRouter } from "next/router";
 
 function HomePage(props) {
-  // const [feedbackItems, setFeedbackItems] = useState([]);
+  const [feedbackItems, setFeedbackItems] = useState({});
   // const [sendItems, setSendItems] = useState([]);
   const router = useRouter();
   const emailInputRef = useRef();
@@ -29,19 +29,19 @@ function HomePage(props) {
 
     if (rawResponse.status < 300) {
       router.replace(router.asPath);
-
     }
   }
+  const loadFeedbackHandeler = (id) => {
+    fetch(`/api/${id}`)
+      .then((res) => res.json())
+      .then((data) => setFeedbackItems(data.feedback));
+  };
 
-  // useEffect(() => {
-  //   fetch("/api/feedback")
-  //     .then((res) => res.json())
-  //     .then((data) => setFeedbackItems(data.feedback));
-  // }, [sendItems]);
-  // console.log(feedbackItems);
+  console.log(feedbackItems);
   return (
     <div>
       <h1>The Home Page</h1>
+      {feedbackItems.email}
       <form onSubmit={submitFormHandler}>
         <div>
           <label htmlFor="email">Your Email Address</label>
@@ -56,7 +56,12 @@ function HomePage(props) {
       <hr />
       <ul>
         {props.feedbackItems.map((item) => (
-          <li>{item?.text}</li>
+          <>
+            <li>{item?.text}</li>
+            <button onClick={loadFeedbackHandeler.bind(null, item.id)}>
+              Show details
+            </button>
+          </>
         ))}
       </ul>
     </div>
@@ -71,4 +76,3 @@ export async function getServerSideProps() {
   return { props: { feedbackItems: feedbackItems } };
 }
 export default HomePage;
-
